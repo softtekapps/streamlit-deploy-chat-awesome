@@ -49,7 +49,7 @@ def send_to_api(message: str, system_message: str, session_id: str, model_choice
             "max_tokens_to_sample":maxTokens
            }
         }       
-    if model_choice=="M`````````````````````````````````````````````istral-mixtral":
+    if model_choice=="Mistral-mixtral":
         url="http://172.177.31.119:3000/api/v1/prediction/c0dab0c4-7610-42b2-80c7-8e169cc33124"
         payload = {
         "question": message,
@@ -60,7 +60,6 @@ def send_to_api(message: str, system_message: str, session_id: str, model_choice
             "max_tokens_to_sample":maxTokens
            }
         }       
-    
     
     print("printing the payload :-",payload)
     try:
