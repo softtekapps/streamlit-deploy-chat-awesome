@@ -70,18 +70,18 @@ def send_to_api(message: str, system_message: str, session_id: str, model_choice
         return f"Error: {str(e)}"
 
 # Sidebar for system message
-st.sidebar.title("System Message")
-system_message = st.sidebar.text_area("Enter system message:", value="you are a helpful assistant")
+st.sidebar.title("Settings")
+system_message = st.sidebar.text_area("Type system message:", value="you are a helpful assistant")
 
 
 
-model_choice = st.sidebar.selectbox("Choose API", ["Azure OpenAI", "Anthropic-claude","Meta-llama-3","Mistral-mixtral"])
-temperature=st.sidebar.selectbox("select the temperature for LLM",["0","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1"])
-maxTokens=st.sidebar.text_area("select the maximum token that you generate : ",value="100")
+model_choice = st.sidebar.selectbox("Choose Model", ["Azure OpenAI", "Anthropic-claude","Meta-llama-3","Mistral-mixtral"])
+temperature=st.sidebar.selectbox("Choose the temperature for LLM",["0","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1"])
+maxTokens=st.sidebar.text_area("Type the maximum token that you generate : ",value="100")
 # Display session ID (you can remove this in production)
 st.sidebar.text(f"Session ID: {st.session_state.session_id}")
 # Main chat interface
-st.title("Softtek Demo Chat")
+st.title("Softtek LLM Playground")
 
 # Display chat messages
 for message in st.session_state.messages:
