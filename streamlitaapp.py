@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import time
 import uuid
+import re
 
 # Set page title
 st.set_page_config(page_title="Softtek Demo Chat")
@@ -39,7 +40,7 @@ def send_to_api(message: str, system_message: str, session_id: str, model_choice
         }
         }
     if model_choice=="Meta-llama-3":
-        url="http://172.177.31.119:3000/api/v1/prediction/c0dab0c4-7610-42b2-80c7-8e169cc33124"
+        url="http://172.177.31.119:3000/api/v1/prediction/4ccd6c03-9c1e-41db-b202-1aa13f198764"
         payload = {
         "question": message,
         "overrideConfig": {
@@ -68,6 +69,19 @@ def send_to_api(message: str, system_message: str, session_id: str, model_choice
         return response.json().get("text", "No response from API")
     except requests.exceptions.RequestException as e:
         return f"Error: {str(e)}"
+
+def cut_response_human(response:str):
+    # Regular expression to find the first occurrence of 'Human:' or 'Assistant:'
+    pattern = r"(Human:|Assistant:)"
+    # Search for the first occurrence of the pattern
+    match = re.search(pattern, response)
+    if match:
+    # Extract text up to the first occurrence
+      result = response[:match.start()].strip()
+    else:
+      result = response.strip()
+    print("result after cutting-",result)   
+    return result 
 
 # Sidebar for system message
 st.sidebar.title("Settings")
@@ -100,7 +114,9 @@ if prompt := st.chat_input("What is your question?"):
         message_placeholder = st.empty()
         full_response = ""
         assistant_response = send_to_api(prompt, system_message, st.session_state.session_id, model_choice,temperature,maxTokens)
-        
+        print("---------------------------response",assistant_response)
+        if(model_choice=="Meta-llama-3" or model_choice=="Mistral-mixtral"):
+            assistant_response=cut_response_human(assistant_response)
         # Simulate stream of response with milliseconds delay
         for chunk in assistant_response.split():
             full_response += chunk + " "
