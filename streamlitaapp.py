@@ -15,10 +15,12 @@ if 'session_id' not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
 
 # Function to send request to API
-def send_to_api(message: str, system_message: str, session_id: str, model_choice:str,temperature:float,maxTokens:str) -> str:
+def send_to_api(message: str, system_message: str, session_id: str, model_choice:str,temperature:float,maxTokens:str,token:str) -> str:
     # url = "http://172.177.31.119:3000/api/v1/prediction/ba097410-9a75-438b-90c5-3ae6c76a4ce9"
     if model_choice == "Anthropic-claude":
         url = "http://172.177.31.119:3000/api/v1/prediction/ba097410-9a75-438b-90c5-3ae6c76a4ce9"
+        headers = {"Authorization": f"Bearer {token}"}
+        print("---------------------------headers",headers)
         payload = {
         "question": message,
         "overrideConfig": {
@@ -30,6 +32,7 @@ def send_to_api(message: str, system_message: str, session_id: str, model_choice
         }
     if model_choice=="Azure OpenAI":
         url = "http://172.177.31.119:3000/api/v1/prediction/c6e35934-878f-4581-a77e-34c8c179594c"
+        headers = {"Authorization": f"Bearer {token}"}
         payload = {
         "question": message,
         "overrideConfig": {
@@ -41,6 +44,7 @@ def send_to_api(message: str, system_message: str, session_id: str, model_choice
         }
     if model_choice=="Meta-llama-3":
         url="http://172.177.31.119:3000/api/v1/prediction/4ccd6c03-9c1e-41db-b202-1aa13f198764"
+        headers = {"Authorization": f"Bearer {token}"}
         payload = {
         "question": message,
         "overrideConfig": {
@@ -52,6 +56,7 @@ def send_to_api(message: str, system_message: str, session_id: str, model_choice
         }       
     if model_choice=="Mistral-mixtral":
         url="http://172.177.31.119:3000/api/v1/prediction/64425673-201a-47e5-8127-98d7ffe8140f"
+        headers = {"Authorization": f"Bearer {token}"}
         payload = {
         "question": message,
         "overrideConfig": {
@@ -64,7 +69,7 @@ def send_to_api(message: str, system_message: str, session_id: str, model_choice
     
     print("printing the payload :-",payload)
     try:
-        response = requests.post(url, json=payload)
+        response = requests.post(url, json=payload,headers=headers)
         response.raise_for_status()
         return response.json().get("text", "No response from API")
     except requests.exceptions.RequestException as e:
@@ -92,6 +97,7 @@ system_message = st.sidebar.text_area("Type system message:", value="you are a h
 model_choice = st.sidebar.selectbox("Choose Model", ["Azure OpenAI", "Anthropic-claude","Meta-llama-3","Mistral-mixtral"])
 temperature=st.sidebar.selectbox("Choose the temperature for LLM",["0","0.1","0.2","0.3","0.4","0.5","0.6","0.7","0.8","0.9","1"])
 maxTokens=st.sidebar.text_area("Type the maximum token that you generate : ",value="100")
+token=st.sidebar.text_area("Paste the access token here :")
 # Display session ID (you can remove this in production)
 st.sidebar.text(f"Session ID: {st.session_state.session_id}")
 # Main chat interface
@@ -113,7 +119,11 @@ if prompt := st.chat_input("What is your question?"):
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""
-        assistant_response = send_to_api(prompt, system_message, st.session_state.session_id, model_choice,temperature,maxTokens)
+        if(token!="L8gAPzSJqtGXPZYxtdSyS4NHWNRRR1FdI3KpRFl_UNA"):
+            assistant_response="Recheck your access key"
+        else:
+          assistant_response = send_to_api(prompt, system_message, st.session_state.session_id, model_choice,temperature,maxTokens,token)
+        
         print("---------------------------response",assistant_response)
         if(model_choice=="Meta-llama-3" or model_choice=="Mistral-mixtral"):
             assistant_response=cut_response_human(assistant_response)
